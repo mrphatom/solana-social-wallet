@@ -70,4 +70,57 @@ describe('AccountService pairing', () => {
       })
     ).rejects.toMatchObject({ code: 'PAIRING_TARGET_PLATFORM_MUST_DIFFER' })
   })
+
+  it('refuses expired and replayed pairing codes before a target identity can link', async () => {
+    let now = new Date('2026-08-27T12:00:00.000Z')
+    const service = createAccountService({
+      repository: new MemorySocialRepository(),
+      clock: () => now,
+      codeGenerator: () => 'paired-test-code'
+    })
+    await service.createAccountFromIdentity({ platform: 'discord', platformUserId: 'discord-user-400', displayName: 'sender' })
+
+    const expired = await service.issuePairingCode({
+      actor: { platform: 'discord', platformUserId: 'discord-user-400' },
+      targetPlatform: 'telegram'
+    })
+    now = new Date('2026-08-27T12:10:00.000Z')
+    await expect(
+      service.requestPairing({ actor: { platform: 'telegram', platformUserId: 'telegram-user-500' }, code: expired.code })
+    ).rejects.toMatchObject({ code: 'PAIRING_CODE_EXPIRED' })
+
+    now = new Date('2026-08-27T12:11:00.000Z')
+    const usable = await service.issuePairingCode({
+      actor: { platform: 'discord', platformUserId: 'discord-user-400' },
+      targetPlatform: 'telegram'
+    })
+    await service.requestPairing({ actor: { platform: 'telegram', platformUserId: 'telegram-user-500' }, code: usable.code })
+    await expect(
+      service.requestPairing({ actor: { platform: 'telegram', platformUserId: 'telegram-user-501' }, code: usable.code })
+    ).rejects.toMatchObject({ code: 'PAIRING_CODE_REPLAYED' })
+  })
+
+  it('refuses a pairing confirmation from any identity other than the source identity', async () => {
+    const service = createAccountService({
+      repository: new MemorySocialRepository(),
+      clock: () => new Date('2026-08-27T12:00:00.000Z'),
+      codeGenerator: () => 'paired-test-code'
+    })
+    await service.createAccountFromIdentity({ platform: 'discord', platformUserId: 'discord-user-600', displayName: 'sender' })
+    const pairing = await service.issuePairingCode({
+      actor: { platform: 'discord', platformUserId: 'discord-user-600' },
+      targetPlatform: 'telegram'
+    })
+    const request = await service.requestPairing({
+      actor: { platform: 'telegram', platformUserId: 'telegram-user-700' },
+      code: pairing.code
+    })
+
+    await expect(
+      service.confirmPairingRequest({
+        actor: { platform: 'discord', platformUserId: 'discord-user-unauthorized' },
+        requestId: request.id
+      })
+    ).rejects.toMatchObject({ code: 'PAIRING_REQUEST_NOT_AUTHORIZED' })
+  })
 })

@@ -185,20 +185,25 @@ export function createAccountService(dependencies: AccountServiceDependencies): 
     const account = await dependencies.repository.getAccount(request.accountId)
     if (account === null) throw new Error('Pairing request references an unknown account.')
 
-    const confirmed = await dependencies.repository.confirmPairingRequest(request.id, now)
-    if (!confirmed) {
+    const finalization = await dependencies.repository.finalizePairingRequest({
+      requestId: request.id,
+      identity: {
+        id: idGenerator(),
+        accountId: request.accountId,
+        platform: request.target.platform,
+        platformUserId: request.target.platformUserId,
+        displayName: `${request.target.platform} user`,
+        acceptsInternalTransfers: false,
+        createdAt: now
+      },
+      confirmedAt: now
+    })
+    if (finalization === 'TARGET_IDENTITY_ALREADY_LINKED') {
+      throw new DomainError('TARGET_IDENTITY_ALREADY_LINKED', 'This chat identity is already linked to an account.')
+    }
+    if (finalization !== 'SUCCESS') {
       throw new DomainError('PAIRING_REQUEST_INVALID', 'That pairing request is not available.')
     }
-
-    await dependencies.repository.addIdentity({
-      id: idGenerator(),
-      accountId: request.accountId,
-      platform: request.target.platform,
-      platformUserId: request.target.platformUserId,
-      displayName: `${request.target.platform} user`,
-      acceptsInternalTransfers: false,
-      createdAt: now
-    })
 
     const updated = await dependencies.repository.getAccount(account.id)
     if (updated === null) throw new Error('Pairing completion invariant failed.')

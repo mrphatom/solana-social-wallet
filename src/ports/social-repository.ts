@@ -19,7 +19,11 @@ export interface SocialRepository {
   consumePairingCode(pairingCodeId: string, consumedAt: Date): Promise<boolean>
   createPairingRequest(request: PairingRequest): Promise<void>
   getPairingRequest(requestId: string): Promise<PairingRequest | null>
-  confirmPairingRequest(requestId: string, confirmedAt: Date): Promise<boolean>
+  finalizePairingRequest(input: {
+    requestId: string
+    identity: LinkedIdentity
+    confirmedAt: Date
+  }): Promise<'SUCCESS' | 'PAIRING_UNAVAILABLE' | 'TARGET_IDENTITY_ALREADY_LINKED'>
   getSolanaWallet(accountId: string): Promise<SolanaWalletAccount | null>
   findSolanaWalletByAddress(address: string): Promise<SolanaWalletAccount | null>
   bindSolanaWallet(wallet: SolanaWalletAccount): Promise<void>

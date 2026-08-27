@@ -106,4 +106,45 @@ describe('Internal transfer intents', () => {
       })
     ).rejects.toMatchObject({ code: 'INTERNAL_TRANSFER_OPT_IN_REQUIRED' })
   })
+
+  it('rejects an invalid Solana address before invoking the ownership verifier', async () => {
+    let verificationCalls = 0
+    const repository = new MemorySocialRepository()
+    const accounts = createAccountService({ repository, clock: () => new Date('2026-08-27T12:00:00.000Z') })
+    const walletAccounts = createWalletAccountService({
+      repository,
+      ownershipVerifier: {
+        verify: async () => {
+          verificationCalls += 1
+          return true
+        }
+      }
+    })
+    await accounts.createAccountFromIdentity({ platform: 'discord', platformUserId: 'discord-five', displayName: 'sender' })
+
+    await expect(
+      walletAccounts.bindVerifiedWallet({
+        actor: { platform: 'discord', platformUserId: 'discord-five' },
+        solanaAddress: '00000000000000000000000000000000',
+        proof: 'test-wallet-proof'
+      })
+    ).rejects.toMatchObject({ code: 'INVALID_SOLANA_ADDRESS' })
+    expect(verificationCalls).toBe(0)
+  })
+
+  it('rejects an amount larger than the supported unsigned lamport range before resolving a recipient', async () => {
+    const intents = createInternalTransferIntentService({
+      repository: new MemorySocialRepository(),
+      clock: () => new Date('2026-08-27T12:00:00.000Z')
+    })
+
+    await expect(
+      intents.create({
+        actor: { platform: 'discord', platformUserId: 'discord-six' },
+        recipient: { platform: 'telegram', platformUserId: 'telegram-seven' },
+        amountLamports: '18446744073709551616',
+        idempotencyKey: 'internal-transfer-intent-0004'
+      })
+    ).rejects.toMatchObject({ code: 'INVALID_TRANSFER_AMOUNT' })
+  })
 })

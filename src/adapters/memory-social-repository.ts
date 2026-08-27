@@ -127,12 +127,23 @@ export class MemorySocialRepository implements SocialRepository {
     return request === undefined ? null : clonePairingRequest(request)
   }
 
-  public async confirmPairingRequest(requestId: string, confirmedAt: Date): Promise<boolean> {
-    const request = this.pairingRequests.get(requestId)
-    if (request === undefined || request.status !== 'AWAITING_SOURCE_CONFIRMATION') return false
+  public async finalizePairingRequest(input: {
+    requestId: string
+    identity: LinkedIdentity
+    confirmedAt: Date
+  }): Promise<'SUCCESS' | 'PAIRING_UNAVAILABLE' | 'TARGET_IDENTITY_ALREADY_LINKED'> {
+    const request = this.pairingRequests.get(input.requestId)
+    if (request === undefined || request.status !== 'AWAITING_SOURCE_CONFIRMATION') return 'PAIRING_UNAVAILABLE'
+    const targetKey = identityKey(input.identity.platform, input.identity.platformUserId)
+    if (this.identities.has(targetKey)) return 'TARGET_IDENTITY_ALREADY_LINKED'
+    const account = this.accounts.get(input.identity.accountId)
+    if (account === undefined) return 'PAIRING_UNAVAILABLE'
+
+    this.identities.set(targetKey, cloneIdentity(input.identity))
+    account.identities.push(cloneIdentity(input.identity))
     request.status = 'CONFIRMED'
-    request.confirmedAt = new Date(confirmedAt)
-    return true
+    request.confirmedAt = new Date(input.confirmedAt)
+    return 'SUCCESS'
   }
 
   public async getSolanaWallet(accountId: string): Promise<SolanaWalletAccount | null> {
