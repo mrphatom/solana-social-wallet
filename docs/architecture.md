@@ -49,6 +49,27 @@ The current intent represents a user-visible request to pay a verified internal 
 
 The bot never moves an intent beyond `AWAITING_WALLET_APPROVAL`. A future wallet bridge must follow explicit simulation, submission, and confirmation semantics. Solana’s RPC documentation says `simulateTransaction` does not broadcast and `sendTransaction` does not wait for confirmation, so both state separation and user confirmation are required.[2] [3]
 
+## Non-custodial signer plane
+
+The new signer architecture keeps the social control plane and the private-key plane separate. A wallet-control proof permits the wallet holder to retrieve a specific intent; it cannot be replayed as spend consent. The wallet client independently parses the exact Solana message, simulates it, displays its destination/fee/account/program facts, and can sign only the resulting reviewed message. The social service never observes the seed, signing key, or signing key handle.
+
+```text
+verified social account ──► immutable transfer intent ──► short-lived approval locator
+                                                             │
+                                                     user-controlled wallet
+                                                             │ wallet-control proof
+                                                             ▼
+                                                      exact reviewed message
+                                                             │ local signature
+                                                             ▼
+                                                     direct RPC submission
+                                                             │ read-only status
+                                                             ▼
+                                                   submitted / confirmed / unknown
+```
+
+The external wallet is the accepted production default. A first-party native signer is deferred and must encapsulate its own audited recovery/envelope/device policy. Browser/PWA storage and a native secure enclave must not be presented as equivalent Solana key protection. See the [key architecture](non-custodial-key-architecture.md), [secure-signing protocol](secure-signing-protocol.md), and [ADR-004](decisions/ADR-004-user-controlled-signer-boundary.md).
+
 ## Disabled ecosystem capabilities
 
 Buy, sell, stake, and bet return a typed `NOT_AVAILABLE` capability result. The type is intentionally extendable: a future adapter can include provider ID, network, risk policy, explicit user approval, configured jurisdiction, and transaction approval requirements. It must not become live by changing a text label or command name.

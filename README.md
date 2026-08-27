@@ -6,13 +6,14 @@
 
 ## Why this approach
 
-Chat names are convenient, but they are not safe payment addresses. A raw Discord or Telegram username may change, collide, or be ambiguous. Solana Social Wallet instead binds a platform-native identity to a private shared account and requires the recipient to opt in before the service will produce an internal-recipient transfer intent. The sender still needs a future, independently controlled wallet companion to see the transaction details, simulate it, approve it, sign it, submit it, and track confirmation.
+Chat names are convenient, but they are not safe payment addresses. A raw Discord or Telegram username may change, collide, or be ambiguous. Solana Social Wallet instead binds a platform-native identity to a private shared account and requires the recipient to opt in before the service will produce an internal-recipient transfer intent. The sender still needs a future, independently controlled wallet companion to see the transaction details, simulate it, approve it, sign it, submit it, and track confirmation. The reviewed [key architecture](docs/non-custodial-key-architecture.md) and [secure-signing protocol](docs/secure-signing-protocol.md) define that future boundary without adding a key, signer, wallet SDK, or network call to this release.
 
 | Capability | Implemented in the foundation | Explicitly not implemented |
 | --- | --- | --- |
 | Shared Discord/Telegram space | One account can link one stable identity from each supported platform using a 10-minute, hashed, one-time code and source-side confirmation. | Live Discord/Telegram bot registration, profile lookup, or raw-username account matching. |
 | Recipient routing | A sender can create an intent for a known stable platform ID when the recipient is linked, has a verified Solana address, and has opted in. | Username-only transfers, guessed users, automatic delivery, escrow, or off-chain ledger balances. |
 | Solana transfer preparation | Base58 public-key syntax validation, sender/recipient account checks, positive lamport amount, idempotency, and `AWAITING_WALLET_APPROVAL` state. | Private keys, recovery phrases, signatures, transaction construction, simulation, RPC calls, broadcasts, or confirmations. |
+| Future signer design | Source-cited key lifecycle, external-wallet default, native-companion gates, exact-message review, signer-authority contract, and no-arbitrary-sign policy. | A deployed wallet client, key generation, recovery ceremony, Wallet Standard/MWA connection, signing, or submission. |
 | Ecosystem features | Typed availability policy for buy, sell, stake, and bet requests. | Any exchange, DEX, validator, staking, betting, KYC, sanctions, or compliance provider integration. |
 | Live transport hardening | Testable Discord Ed25519 raw-request verification and Telegram secret-header comparison primitives. | Public webhook routes, provider credentials, queue workers, or provider-facing API calls. |
 
@@ -60,7 +61,7 @@ AWAITING_WALLET_APPROVAL intent
      └── future separately approved wallet-confirmation bridge
 ```
 
-See [the detailed architecture](docs/architecture.md) and [decision records](docs/decisions/) for the reasons behind the non-custodial, stable-identity, and verified-webhook boundaries.
+See [the detailed architecture](docs/architecture.md), [key lifecycle](docs/non-custodial-key-architecture.md), [signing protocol](docs/secure-signing-protocol.md), [implementation checklist](docs/key-signing-implementation-checklist.md), and [decision records](docs/decisions/) for the non-custodial, stable-identity, verified-webhook, and user-controlled-signing boundaries.
 
 ## Security posture
 
