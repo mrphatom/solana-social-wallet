@@ -12,11 +12,13 @@ The repository is intentionally **local-only**. `pnpm dev` reports the disabled 
 | Telegram bot connection | Not configured. | Owner provides bot token and webhook secret securely, approves an HTTPS route, and validates secret header, `update_id` deduplication, rate limits, and production observability. |
 | Persistent database | Not configured. | Approved environment, reviewed migration/rollback plan, transactional uniqueness constraints, encrypted backup, retention policy, and restore test. |
 | Solana RPC/wallet bridge | Not configured. | Approved network and wallet protocol, separate threat model, preview/simulation/signing/confirmation design, and security review. |
-| Buy/sell/stake/bet provider | Not configured. | Provider approval, jurisdictional and compliance review, explicit consent/fee/risk UX, and financial-operation controls. |
+| Swap route/DEX/fee oracle | Not configured. | Named providers and failure-domain evidence, reviewed protocol profile, full transaction/ALT/token-extension parser, matching simulation, fixed user caps, independent review, and explicit user-controlled wallet approval. |
+| Portfolio/staking/liquidity provider | Not configured. | Read-only address consent, freshness/commitment/degradation contract, protocol-specific profile, no-recommendation policy, privacy review, and separate state-change approval gates. |
+| Betting provider | Not configured and disabled. | A separate provider, technical, jurisdiction/eligibility, consumer-protection, market-lifecycle, oracle/settlement, incident, wallet-review, and security decision. |
 
 ## Required runtime signals
 
-A future production service should emit allowlisted structured events such as `platform_event_verified`, `platform_event_rejected`, `pairing_requested`, `pairing_confirmed`, `intent_created`, `intent_rejected`, and `wallet_execution_state_changed`. A correlation ID must link inbound event, persistence attempt, and outbound reply. Never record a raw body, bot token, webhook secret, pairing code, wallet proof, user signature, private key, seed phrase, complete username, or full message text.
+A future production service should emit allowlisted structured events such as `platform_event_verified`, `platform_event_rejected`, `pairing_requested`, `pairing_confirmed`, `identity_recovery_locked`, `route_evidence_rejected`, `fee_policy_unavailable`, `parser_profile_mismatch`, `portfolio_snapshot_degraded`, `intent_created`, `intent_rejected`, and `wallet_execution_state_changed`. A correlation ID must link inbound event, persistence attempt, and outbound reply. Never record a raw body, bot token, webhook secret, pairing code, wallet proof, user signature, private key, seed phrase, complete username, full message text, raw transaction bytes, unredacted address, or provider response payload.
 
 | Operational question | Signal | Escalation threshold |
 | --- | --- | --- |
@@ -24,6 +26,8 @@ A future production service should emit allowlisted structured events such as `p
 | Is abuse rising? | Rate-limit events, code request volume, code expiry/replay rate. | Sustained threshold breach or account-link anomaly. |
 | Is persistence healthy? | Error rate, p95/p99 transaction latency, idempotency conflict count, queue age. | Elevated error rate, failed migration, backup/restore error, or stuck queue. |
 | Are wallet flows safe? | Intent creation/rejection counts and future submitted/confirmed/unknown lifecycle counts. | Unknown/failed execution rise, confirmation lag, or duplicate intent signal. |
+| Are route/parser checks failing safely? | Bounded rejection reason by policy/profile version; stale/conflict/unknown effect counts. | Unusual mismatch/unknown-effect rate or a profile/fee-source change. |
+| Is an account takeover or social-engineering campaign suspected? | Pairing/unlink/recovery lock and security-report rate, with no raw chat content. | Anomaly threshold, invalid-signature surge, or user safety report. |
 
 ## Secret handling
 
@@ -31,4 +35,4 @@ Use a managed secret store or securely injected runtime environment. Do not past
 
 ## Incident posture
 
-On suspected account-link or webhook compromise, stop the relevant live adapter, revoke/rotate the affected provider credentials, preserve only sanitized security evidence, invalidate active pairing requests, and inform affected users through a pre-approved communication plan. On a suspected transaction issue, disable wallet execution first and retain user-visible state as `UNKNOWN` rather than claiming success or failure without verified evidence. This repository has no live state to revoke.
+On suspected account-link, social-engineering, or webhook compromise, stop the relevant live adapter, disable financial coordination, lock affected identities in conflict/recovery state, revoke/rotate the affected provider credentials, preserve only sanitized security evidence, invalidate active pairing and review packages, and inform affected users through a pre-approved communication plan. On a suspected transaction/route/parser/fee issue, disable wallet execution first and retain user-visible state as `UNKNOWN` rather than claiming success or failure without verified evidence. This repository has no live state to revoke.

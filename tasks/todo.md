@@ -33,3 +33,24 @@
 - [x] Specify multi-replica directory lookup, quorum verification, fork/equivocation handling, availability degradation, and signer-client selection policy.
   - Acceptance: A single database outage or malicious replica cannot silently change a recipient address or authorize payment.
   - Verify: Typed resolver contract, deterministic quorum-policy tests, and implementation gate checklist.
+- [x] Define the non-custodial Solana swap and betting-provider routing threat model, execution boundary, and provider-admission gates.
+  - Acceptance: The bot/service cannot fetch quotes, select a financial route, set a fee, sign, submit, stake, or place a wager; each action remains disabled without a separately reviewed provider adapter and wallet approval.
+  - Verify: Source-cited architecture and decision record.
+- [x] Specify quote freshness, route normalization, deterministic route-risk selection, slippage/price-impact guardrails, simulation, and priority-fee policy.
+  - Acceptance: Stale, conflicting, unaudited, unbounded, or parser-unknown routes fail closed rather than being optimized or signed.
+  - Verify: Versioned protocol, typed inert policy contracts, and adversarial tests.
+- [x] Specify exact-message review, signature, submission, confirmation, cancellation, failure, and unknown-state handling for swap and betting-provider transactions.
+  - Acceptance: A social bot cannot turn a quote or betting request into a transfer; user-controlled wallet approval remains a fresh, separate, fully decoded decision.
+  - Verify: State-machine contract, security checklist, and implementation gates.
+- [x] Specify secure Solana transaction simulation and human-readable message parsing for transfer, swap, staking, liquidity, and betting-provider request classes.
+  - Acceptance: Unknown programs, hidden account changes, parser gaps, simulation errors, stale blockhashes, and unbounded effects fail closed before user approval.
+  - Verify: Versioned parser/simulation protocol and adversarial acceptance matrix.
+- [x] Define the durable cross-platform chat identity-binding database schema, invariants, indexes, migrations, retention, and link/unlink lifecycle state machine.
+  - Acceptance: Pairing/unpairing is transactional and replay-resistant; no unique identity can be silently reassigned, and conflict/recovery/audit states are explicit.
+  - Verify: Schema design, transition table, integrity constraints, and production migration gates.
+- [x] Specify non-custodial staking, liquidity-position, and portfolio interfaces for Discord/Telegram coordination.
+  - Acceptance: Read-only portfolio snapshots are clearly sourced/freshness-bound, and stake/liquidity actions remain review-first wallet requests with protocol-specific risk disclosures.
+  - Verify: Capability contract, state matrix, provider-admission checklist, and no-execution boundary tests.
+- [x] Outline a security-hardening and threat-model defense strategy against social engineering, account takeover, bot hijacking, directory abuse, and transaction substitution.
+  - Acceptance: Platform ingress, account pairing, user messaging, directory routing, signer plane, operations, and incident response have concrete preventive/detective/recovery controls.
+  - Verify: STRIDE-style threat model, abuse cases, security acceptance gate, and tabletop exercise plan.

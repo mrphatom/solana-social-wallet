@@ -1,6 +1,6 @@
 {
   "name": "solana-social-wallet",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Security-first, non-custodial Solana account coordination and verifiable social-tip directory foundation for Discord and Telegram.",
   "type": "module",

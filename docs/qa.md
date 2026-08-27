@@ -1,18 +1,20 @@
 # Quality Record
 
-## Foundation validation
+## v0.3.0 social-finance architecture validation
 
-The local-only foundation, non-custodial signer architecture, and decentralized social-directory policy have been verified with the credential-free deterministic demo, ESLint, strict TypeScript build, Vitest suite, and production dependency audit. The current suite contains **22 tests** across pairing, internal transfer intent, capability policy, local chat runtime, webhook verification, signer-boundary, and social-directory resolver behavior. It confirms the project creates no private key, signer, network request, transaction broadcast, live platform call, live directory query, or enabled buy/sell/stake/bet action.
+The local-only foundation, non-custodial signer architecture, social-directory policy, and new routing/fee/parser/identity/portfolio/bot-hardening architecture have been verified with deterministic tests, ESLint, strict TypeScript build, credential-free demonstration, and production dependency audit. The suite contains **32 tests across 11 files**. It confirms the project creates no private key, signer, network request, transaction broadcast, live platform call, live directory query, DEX/aggregator/betting/portfolio/staking provider call, quote, route, priority-fee selection, or enabled financial action.
 
 | Check | Result | Scope |
 | --- | --- | --- |
 | `pnpm demo` | Pass | In-memory Discord-to-Telegram pairing with source confirmation; no code, credential, or wallet proof printed. |
 | `pnpm lint` | Pass | Static TypeScript checks. |
-| `pnpm test` | Pass — 7 files / 22 tests | Pairing confirmation, same-platform/expiry/replay/source refusal, recipient opt-in, invalid address/amount refusal, intent idempotency, disabled capabilities, local routing, Discord signature verification, Telegram secret verification, non-custodial signer-caller/request/freshness/review/fingerprint policy, and social-directory matching-replica/conflict/minimum-threshold/delimiter-collision refusal. |
+| Focused red test | Expected fail | New routing/fee/betting and social-finance capability tests first failed because their policy modules did not exist. |
+| Focused green tests | Pass — 10 tests | Route evaluator, priority-fee policy, disabled betting policy, and disabled social-finance capability registry passed after minimal pure implementations were added. |
+| `pnpm test` | Pass — 11 files / 32 tests | Prior pairing, intent, capability, local-runtime, webhook, signer-boundary, and directory quorum cases plus stale/mismatched route rejection, independent route-source and fee-domain requirements, mint/amount/output/slippage bounds, program/extension/account/authority refusal, simulation/fingerprint refusal, compute/priority-fee caps, unsupported fee format, disabled betting, and disabled portfolio/staking/liquidity/reward capabilities. |
 | `pnpm build` | Pass | Strict NodeNext TypeScript compilation. |
 | `pnpm audit --prod --audit-level=high` | Pass | No known production dependency vulnerabilities reported at validation time. |
-| Credential/static surface scan | Pass | No configured provider credentials, private-key material, raw RPC calls, live resolver transport, `fetch`, child process, `eval`, `innerHTML`, `postMessage`, or environment read exists in source/test scope. |
+| Credential/static surface scan | Pass | New source/test diff contains no Solana SDK, RPC URL, DEX/provider transport, `fetch`, `Connection`, transaction submission, environment read, private-key/seed/mnemonic phrase, dynamic code, or child-process execution surface. |
 
 ## Not performed
 
-No Discord or Telegram bot account was connected, no webhook was registered, no public endpoint was opened, no database was provisioned, no user identity/address directory record was issued or resolved, no attester/replica/root anchor was operated, no wallet ownership proof was accepted, no user signed a transaction, no Solana RPC request was sent, and no asset movement, trade, stake, or bet was attempted. These omissions are intentional release boundaries, not untested claims of production readiness.
+No Discord or Telegram bot account was connected, no webhook was registered, no public endpoint was opened, no database was provisioned, no user identity/address directory record was issued or resolved, no attester/replica/root anchor was operated, no wallet ownership proof was accepted, no user signed a transaction, no Solana RPC request was sent, and no asset movement, quote/route fetch, priority-fee selection, trade, stake, liquidity action, reward claim, portfolio-provider lookup, or bet was attempted. These omissions are intentional release boundaries, not untested claims of production readiness.

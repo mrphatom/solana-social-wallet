@@ -33,7 +33,7 @@ The project addresses a practical chat-wallet problem: an identifiable recipient
 
 | Path | Responsibility |
 | --- | --- |
-| `src/domain/` | Pure domain types, pairing policy, recipient resolution, capability policy, and intent state transitions. |
+| `src/domain/` | Pure domain types, pairing policy, recipient resolution, capability policy, transfer intents, and fail-closed routing/priority-fee/social-finance policies. |
 | `src/application/` | Use cases that enforce authorization and compose ports. |
 | `src/adapters/` | In-memory persistence, local command parsing, and deferred Discord/Telegram webhook adapter contracts. |
 | `src/http/` | Local-only HTTP interface and safe error serialization. |
@@ -67,7 +67,10 @@ export function canResolveRecipient(identity: LinkedIdentity): RecipientResoluti
 | Future social-tip directory | Documented scoped Tip Card, signed-binding, attester, multi-replica/root, and fail-closed quorum contracts; pure policy test only. | Live directory records, global handle lookup, plaintext identity/address anchoring, attester/replica operation, recipient-address release, or decentralized identity claim. |
 | Solana transfer intent | Validate base58 address and positive lamports, create recipient-bound `AWAITING_WALLET_APPROVAL` intent. | Key custody, signing, broadcast, settlement, or off-chain ledger credits. |
 | Wallet confirmation bridge | Typed approval-request contract for a future trusted wallet companion. | An embedded wallet, bot-held key, hidden signing, or automatic resubmission. |
-| Ecosystem capability registry | Discover disabled buy, sell, stake, and bet contracts with reason codes. | Provider integration, price execution, delegation, wagers, or compliance claims. |
+| Swap route and fee evidence | Pure fail-closed evaluator validates intent-bound quote evidence, independent sources, decoded-message fingerprint, bounded program/mint/extension evidence, current simulation, and fixed fee caps. | DEX/aggregator/RPC/oracle access, route fetch, transaction parser/builder, fee mutation, signing, submission, or token movement. |
+| Betting provider | Separate protocol-agnostic `NOT_AVAILABLE` policy. | Provider integration, odds/market data, wager, escrow, settlement, redemption, or compliance claims. |
+| Staking/liquidity/portfolio | Typed disabled capability registry and source-cited future request/snapshot interfaces. | Validator/pool selection, advice, indexer/RPC access, delegation, liquidity/reward action, or asset execution. |
+| Durable identity lifecycle | Migration-oriented schema/state-machine specification for a future relational repository. | Database provisioning, data migration, account recovery operation, or live identity reassignment. |
 | Chat transport | Provider-neutral command/event contracts; local simulation endpoint. | Live webhook registration or message delivery without user-supplied credentials. |
 
 ## Safety, authorization, and data boundaries
@@ -79,6 +82,9 @@ export function canResolveRecipient(identity: LinkedIdentity): RecipientResoluti
 - Generate high-entropy one-time pairing codes, persist only a hash, set a short expiration, bind the code to source identity/platform, and invalidate it upon consumption.
 - Resolve recipients with stable platform IDs, explicit transfer opt-in, and a linked account/wallet address.
 - Treat any future social directory as discovery only: require a verified stable platform context, recipient Tip Card/capability, current wallet binding, recipient consent, independently verified evidence, matching replica quorum, and a full address review before an intent can use its result.
+- Treat every route, quote, fee observation, portfolio snapshot, stake/liquidity provider response, and betting-provider profile as untrusted, short-lived evidence rather than payment authority.
+- Require a fully decoded, structurally fingerprinted, program/mint/extension/ALT/effect-validated exact message and matching successful simulation before any future user review; reject unknown/opaque instructions and mutable/replayed review packages.
+- Keep swaps, staking, liquidity, rewards, portfolio reads, and betting-provider requests as distinct capability/request classes. A policy for one class cannot authorize another.
 - Use idempotency keys for client-visible intents and immutable, non-sensitive audit events for state changes.
 - Keep `DRAFT`, `AWAITING_WALLET_APPROVAL`, `SIGNED`, `SUBMITTED`, `CONFIRMED`, `FAILED`, and `UNKNOWN` distinct; do not call a submitted transaction settled.
 - Use allowlisted structured telemetry with a correlation ID; exclude raw message bodies, secrets, private keys, seed phrases, wallet signatures, and complete chat-user content.
@@ -96,6 +102,7 @@ export function canResolveRecipient(identity: LinkedIdentity): RecipientResoluti
 - Treat a display name, handle, or a claimed wallet address as proof of recipient identity.
 - Treat a single resolver, stale cache, response majority, root checkpoint, attester receipt, or wallet binding signature as sufficient to map a raw social handle to a payout address.
 - Auto-approve, auto-sign, auto-submit, retry, or silently replace a financial transaction intent.
+- Select a route, priority fee, validator, pool, position, market, or provider for a user; guess a missing fee/route/parser effect; or raise/retry a fee after the user has reviewed a message.
 - Pretend an intent is a transfer, a transaction signature is a confirmation, an unavailable provider is working, or a disabled capability is enabled.
 - Ship live buy/sell/stake/bet functionality or gambling advice/execution under this foundation.
 
@@ -107,15 +114,15 @@ The future social-tip directory is optional and cannot weaken this rule. It uses
 
 An approved recipient lookup produces a transfer request containing a Solana public address and positive lamport amount. The current service only creates an `AWAITING_WALLET_APPROVAL` intent; it cannot construct a signed transaction without an explicit future wallet-confirmation implementation. A future bridge must use the same simulation/preflight commitment as submission and must separately track submitted, confirmed, failed, and unknown outcomes. Solana documents that simulation does not broadcast, and that `sendTransaction` returning a signature does not guarantee cluster confirmation.[1] [2]
 
-The service intentionally defaults capability contracts for **BUY**, **SELL**, **STAKE**, and **BET** to disabled. They are visible only as explicit `NOT_AVAILABLE` results so future work can add a reviewed adapter without silently broadening the command surface.
+The service intentionally defaults capability contracts for **BUY**, **SELL**, **STAKE**, **BET**, portfolio snapshots, liquid stake, liquidity positions, and reward claims to disabled. Separately added pure policies can accept only a future swap route **for human review**; that result has no signer, transaction, provider, or wallet effect. A provider adapter, protocol profile, full parser, independent evidence, simulation, explicit wallet authorization, and security review remain independent implementation gates.
 
 ## Persistence model
 
-The first release supplies an in-memory repository for tests and local demos. Its production interface is relational and designed for a future PostgreSQL implementation. Required durability invariants are unique `(platform, platform_user_id)` identity ownership, one active pairing code per source identity, consumed-code invalidation, unique idempotency key per account/action, and append-only event records. A production migration must add its own reviewed schema and rollback plan.
+The first release supplies an in-memory repository for tests and local demos. A future relational design records a stable platform-ID digest, unique active binding, hashed code, pairing request, idempotent verified event receipt, minimal append-only security event chain, and explicit unlink/recovery conflict states. It preserves active-binding uniqueness in the database—not only in application code—and uses additive expand/backfill/dual-write/contract migrations with a reviewed rollback or recovery plan. No database is provisioned here.
 
 ## Testing strategy
 
-Most coverage is deterministic, small tests of domain policies. Small integration tests use the in-memory repository to cover an end-to-end sequence: create account → bind Discord → issue pairing code → consume code in Telegram → opt recipient in → resolve platform-native recipient → create transfer intent. Negative tests must cover expired/replayed/cross-account pairing codes, username-only resolution refusal, recipient opt-out, invalid Solana destination, zero/negative amount, duplicate idempotency key, disabled ecosystem capabilities, and prohibited state transitions.
+Most coverage is deterministic, small tests of domain policies. Small integration tests use the in-memory repository to cover an end-to-end sequence: create account → bind Discord → issue pairing code → consume code in Telegram → opt recipient in → resolve platform-native recipient → create transfer intent. Negative tests cover expired/replayed/cross-account pairing codes, username-only resolution refusal, recipient opt-out, invalid Solana destination, zero/negative amount, duplicate idempotency key, disabled ecosystem capabilities, and prohibited state transitions. New adversarial policies cover stale/mismatched routes, single/shared failure-domain evidence, unknown programs/extensions/account effects, invalid slippage/amount/output, stale/mismatched simulation, fee-observation failures/caps, and permanently unavailable betting/staking/liquidity/portfolio capabilities.
 
 Live API tests, live webhook tests, wallet signatures, RPC calls, exchange orders, stake instructions, bets, real bot messages, and production database migration tests are intentionally excluded from this credential-free foundation.
 
