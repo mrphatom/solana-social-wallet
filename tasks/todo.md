@@ -15,12 +15,12 @@
 - [x] Add security documentation, architecture decisions, CI, review, release checks, and controlled GitHub publication.
   - Acceptance: No secrets, live provider, custody, or asset-execution path; source citations and future gates are clear.
   - Verify: Lint, test, build, audit, secret scan, and documented code review.
-- [ ] Define the non-custodial Solana signer threat model, trust zones, security invariants, and deployment gates.
+- [x] Define the non-custodial Solana signer threat model, trust zones, security invariants, and deployment gates.
   - Acceptance: The Discord/Telegram service cannot access, derive, transmit, log, or approve a user private key or recovery material.
   - Verify: Threat model and architecture decision records with current primary-source references.
-- [ ] Specify Solana key generation, recovery, backup, encrypted local storage, hardware signer, and device-management architecture.
+- [x] Specify Solana key generation, recovery, backup, encrypted local storage, hardware signer, and device-management architecture.
   - Acceptance: Recovery material is shown once on a user-controlled client, and no browser/server/chat component is misrepresented as hardware-backed custody.
   - Verify: Lifecycle diagrams, data classification, and explicit residual-risk analysis.
-- [ ] Specify a review-first transaction request, simulation, signing, broadcast, and confirmation protocol.
+- [x] Specify a review-first transaction request, simulation, signing, broadcast, and confirmation protocol.
   - Acceptance: Every financial action remains user-controlled, transaction details are immutable across approval, and intent/submission/confirmation states cannot be conflated.
   - Verify: Typed interface contracts, state-machine tests, and a separate implementation approval checklist.
