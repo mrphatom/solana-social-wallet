@@ -64,6 +64,7 @@ export function canResolveRecipient(identity: LinkedIdentity): RecipientResoluti
 | Cross-platform account | One account space can own distinct verified Discord/Telegram identities. | Username-only merges or implicit links. |
 | Pairing | One-time, hashed, expiring code proves control of a second identity. | Pairing based only on a user-entered handle. |
 | Recipient lookup | Resolve platform-native recipient identity if linked and opted in. | Searching/guessing public platform usernames as a transfer target. |
+| Future social-tip directory | Documented scoped Tip Card, signed-binding, attester, multi-replica/root, and fail-closed quorum contracts; pure policy test only. | Live directory records, global handle lookup, plaintext identity/address anchoring, attester/replica operation, recipient-address release, or decentralized identity claim. |
 | Solana transfer intent | Validate base58 address and positive lamports, create recipient-bound `AWAITING_WALLET_APPROVAL` intent. | Key custody, signing, broadcast, settlement, or off-chain ledger credits. |
 | Wallet confirmation bridge | Typed approval-request contract for a future trusted wallet companion. | An embedded wallet, bot-held key, hidden signing, or automatic resubmission. |
 | Ecosystem capability registry | Discover disabled buy, sell, stake, and bet contracts with reason codes. | Provider integration, price execution, delegation, wagers, or compliance claims. |
@@ -77,6 +78,7 @@ export function canResolveRecipient(identity: LinkedIdentity): RecipientResoluti
 - Require both identity ownership proof and account ownership checks before linking/removing an identity.
 - Generate high-entropy one-time pairing codes, persist only a hash, set a short expiration, bind the code to source identity/platform, and invalidate it upon consumption.
 - Resolve recipients with stable platform IDs, explicit transfer opt-in, and a linked account/wallet address.
+- Treat any future social directory as discovery only: require a verified stable platform context, recipient Tip Card/capability, current wallet binding, recipient consent, independently verified evidence, matching replica quorum, and a full address review before an intent can use its result.
 - Use idempotency keys for client-visible intents and immutable, non-sensitive audit events for state changes.
 - Keep `DRAFT`, `AWAITING_WALLET_APPROVAL`, `SIGNED`, `SUBMITTED`, `CONFIRMED`, `FAILED`, and `UNKNOWN` distinct; do not call a submitted transaction settled.
 - Use allowlisted structured telemetry with a correlation ID; exclude raw message bodies, secrets, private keys, seed phrases, wallet signatures, and complete chat-user content.
@@ -92,6 +94,7 @@ export function canResolveRecipient(identity: LinkedIdentity): RecipientResoluti
 
 - Accept, store, log, or transmit a user private key, seed phrase, password, access token, webhook secret, or bot token.
 - Treat a display name, handle, or a claimed wallet address as proof of recipient identity.
+- Treat a single resolver, stale cache, response majority, root checkpoint, attester receipt, or wallet binding signature as sufficient to map a raw social handle to a payout address.
 - Auto-approve, auto-sign, auto-submit, retry, or silently replace a financial transaction intent.
 - Pretend an intent is a transfer, a transaction signature is a confirmation, an unavailable provider is working, or a disabled capability is enabled.
 - Ship live buy/sell/stake/bet functionality or gambling advice/execution under this foundation.
@@ -99,6 +102,8 @@ export function canResolveRecipient(identity: LinkedIdentity): RecipientResoluti
 ## Security and transaction model
 
 The pairing flow creates a source-bound, 10-minute one-time code. The second platform identity must present that code in its own chat context; an already linked identity is refused. Recipient lookup takes a **stable platform user ID** obtained by the platform adapter—such as a Discord command’s resolved user—not a user-typed handle. Direct messages can display a safe disambiguation response but cannot create an intent from an unresolved handle.
+
+The future social-tip directory is optional and cannot weaken this rule. It uses a recipient-held Tip Card to compute an opaque, scope-bound subject commitment, a wallet-signed address binding, independent platform-control receipts, append-only replica/root evidence, and a resolver policy that requires multiple distinct failure domains to agree on one complete bundle. No component may convert a raw `@handle` into an address, and no directory result can create a transfer itself. See the [directory design](docs/decentralized-social-tipping-directory.md) and [resolver protocol](docs/social-directory-resolver-protocol.md).
 
 An approved recipient lookup produces a transfer request containing a Solana public address and positive lamport amount. The current service only creates an `AWAITING_WALLET_APPROVAL` intent; it cannot construct a signed transaction without an explicit future wallet-confirmation implementation. A future bridge must use the same simulation/preflight commitment as submission and must separately track submitted, confirmed, failed, and unknown outcomes. Solana documents that simulation does not broadcast, and that `sendTransaction` returning a signature does not guarantee cluster confirmation.[1] [2]
 

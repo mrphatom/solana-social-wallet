@@ -19,3 +19,17 @@ The initial pairing completion performed a request-state confirmation and a targ
 ## Deliberate limitations
 
 The review does not approve a live bot, a production persistence layer, a wallet ownership proof protocol, transaction execution, or any buy/sell/stake/bet provider. It also does not certify user privacy, legal compliance, gambling compliance, financial suitability, security audit status, operating capacity, or custody readiness.
+
+## Social directory architecture increment
+
+The decentralized social tipping directory review covers the new attestation/resolver protocol documents, future-only resolver port, and pure quorum evaluator. It is assessed as a **design and policy increment**, not a live directory implementation or a claim that social-platform identity is decentralized.
+
+| Axis | Result | Evidence |
+| --- | --- | --- |
+| Correctness | Approved with a corrective change applied. | Four deterministic resolver tests cover matching independent replicas, single-replica refusal, conflicting quorum refusal, and minimum-threshold refusal. |
+| Readability | Approved. | The evidence model, policy input, decision union, and future resolver port use focused names and explicit domain/failure-domain fields. |
+| Architecture | Approved. | The pure evaluator remains in `src/domain/`; the future transport contract lives in `src/ports/`; protocol, governance, and deployment gates stay in documentation. No resolver/network code is coupled into bot or intent services. |
+| Security | Approved for inert policy only. | The evaluator fails closed for missing verified context, insufficient evidence, configuration below two independent domains, and competing complete quorums. Review found delimiter-joined group keys could merge adversarial field tuples; a red regression test was added and the code now uses structural bundle equality. |
+| Performance | Approved for inert policy only. | Evaluation processes only the caller-supplied bounded evidence collection. A live collector still needs hard response-size limits, timeouts, rate limits, pagination discipline, cache bounds, and adversarial load testing. |
+
+The review found no private-material, signing SDK, Solana RPC, HTTP/resolver transport, subprocess, dynamic-code, or live directory operation in the implementation. Production must not rely on the policy evaluator's boolean evidence fields as cryptographic verification: a future adapter must independently validate canonical bytes, signatures, membership roots, and proof objects before producing evidence for the policy.

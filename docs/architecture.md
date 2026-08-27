@@ -70,6 +70,26 @@ verified social account ──► immutable transfer intent ──► short-live
 
 The external wallet is the accepted production default. A first-party native signer is deferred and must encapsulate its own audited recovery/envelope/device policy. Browser/PWA storage and a native secure enclave must not be presented as equivalent Solana key protection. See the [key architecture](non-custodial-key-architecture.md), [secure-signing protocol](secure-signing-protocol.md), and [ADR-004](decisions/ADR-004-user-controlled-signer-boundary.md).
 
+## Future decentralized social-tip directory
+
+The optional directory is a **discovery and evidence plane**, not a replacement for verified platform identity, wallet control, or user-controlled signing. A recipient shares a narrow Tip Card; a verified Discord/Telegram platform context supplies the stable platform ID; the client computes an opaque scoped commitment; and a resolver obtains independently verifiable signed evidence from multiple directory replicas. Only one complete, current, identical bundle from the configured independent quorum can reveal an address candidate to the wallet client.
+
+```text
+verified platform-native recipient selection + recipient Tip Card
+                           │
+                           ▼
+                  scoped opaque commitment
+                           │
+                           ▼
+        independent resolver replicas / signed root evidence
+                           │
+            verified current matching quorum only
+                           ▼
+  explicit full-address review ──► immutable transfer intent ──► external wallet approval
+```
+
+The protocol uses a recipient wallet signature to prove address control, threshold platform-attester receipts to prove narrow social-platform control, and multiple signed replica/root responses to reduce one-directory-database address substitution or outage risk. It does not render Discord/Telegram identity decentralized, eliminate governance risk, provide global username lookup, or authorize payment. A conflict, stale proof, unavailable root, expired Tip Card, or insufficient independent evidence is an unavailable recipient result. The detailed [directory architecture](decentralized-social-tipping-directory.md), [attestation protocol](social-directory-attestation-protocol.md), [resolver protocol](social-directory-resolver-protocol.md), [implementation gates](social-directory-implementation-gates.md), and [ADR-006](decisions/ADR-006-federated-verifiable-social-directory.md) define this future boundary.
+
 ## Disabled ecosystem capabilities
 
 Buy, sell, stake, and bet return a typed `NOT_AVAILABLE` capability result. The type is intentionally extendable: a future adapter can include provider ID, network, risk policy, explicit user approval, configured jurisdiction, and transaction approval requirements. It must not become live by changing a text label or command name.

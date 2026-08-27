@@ -12,6 +12,7 @@ Chat names are convenient, but they are not safe payment addresses. A raw Discor
 | --- | --- | --- |
 | Shared Discord/Telegram space | One account can link one stable identity from each supported platform using a 10-minute, hashed, one-time code and source-side confirmation. | Live Discord/Telegram bot registration, profile lookup, or raw-username account matching. |
 | Recipient routing | A sender can create an intent for a known stable platform ID when the recipient is linked, has a verified Solana address, and has opted in. | Username-only transfers, guessed users, automatic delivery, escrow, or off-chain ledger balances. |
+| Social tip directory design | Source-cited signed-attestation protocol, scoped Tip Card model, pure multi-replica quorum policy, resolver port, and adversarial tests. | A live directory, global handle search, user identity/address record, resolver network, attester, on-chain registry, or address disclosure from a raw username. |
 | Solana transfer preparation | Base58 public-key syntax validation, sender/recipient account checks, positive lamport amount, idempotency, and `AWAITING_WALLET_APPROVAL` state. | Private keys, recovery phrases, signatures, transaction construction, simulation, RPC calls, broadcasts, or confirmations. |
 | Future signer design | Source-cited key lifecycle, external-wallet default, native-companion gates, exact-message review, signer-authority contract, and no-arbitrary-sign policy. | A deployed wallet client, key generation, recovery ceremony, Wallet Standard/MWA connection, signing, or submission. |
 | Ecosystem features | Typed availability policy for buy, sell, stake, and bet requests. | Any exchange, DEX, validator, staking, betting, KYC, sanctions, or compliance provider integration. |
@@ -61,7 +62,7 @@ AWAITING_WALLET_APPROVAL intent
      └── future separately approved wallet-confirmation bridge
 ```
 
-See [the detailed architecture](docs/architecture.md), [key lifecycle](docs/non-custodial-key-architecture.md), [signing protocol](docs/secure-signing-protocol.md), [implementation checklist](docs/key-signing-implementation-checklist.md), and [decision records](docs/decisions/) for the non-custodial, stable-identity, verified-webhook, and user-controlled-signing boundaries.
+See [the detailed architecture](docs/architecture.md), [social-tip directory design](docs/decentralized-social-tipping-directory.md), [attestation protocol](docs/social-directory-attestation-protocol.md), [multi-replica resolver protocol](docs/social-directory-resolver-protocol.md), [directory implementation gates](docs/social-directory-implementation-gates.md), [key lifecycle](docs/non-custodial-key-architecture.md), [signing protocol](docs/secure-signing-protocol.md), [implementation checklist](docs/key-signing-implementation-checklist.md), and [decision records](docs/decisions/) for the non-custodial, stable-identity, verified-webhook, user-controlled-signing, and privacy-scoped social-resolution boundaries.
 
 ## Security posture
 
@@ -72,6 +73,7 @@ The foundation deliberately excludes the most dangerous custody paths. It does n
 | Discord interaction | Raw-body Ed25519 verifier exists and is tested. | Live endpoint, public key secret wiring, timestamp/replay handling, rate limits, provider test suite, and deployment review. Discord requires the Ed25519/timestamp validation for HTTP interaction endpoints.[1] |
 | Telegram webhook | Secret comparison primitive exists and is tested. | HTTPS endpoint, secret-token configuration, durable `update_id` deduplication, rate limits, and deployment review. Telegram delivers webhook updates as HTTPS POST and supports a secret-token header.[2] |
 | Account link | Hashed, single-use code, expiry, source confirmation, and target-platform binding. | Durable transactional persistence, throttling, recipient/user disclosure, retention policy, and abuse monitoring. |
+| Decentralized tip discovery | Pure policy requires a valid Tip Card/context, recipient consent, wallet-binding proof, independent attester/root evidence, and matching replica quorum. | A global social-address directory, raw handle lookup, any address record, a live attester/replica, identity verification, public anchor, or a guarantee of privacy/availability. |
 | Solana intent | Address syntax checks, opt-in recipient, wallet-account binding contract, sender-scoped idempotency. | Wallet proof protocol, explicit transaction preview, simulation, signature, broadcast, confirmation, and an independent audit. Solana distinguishes simulation, submission, and later status confirmation.[3] [4] |
 | Buy/sell/stake/bet | Typed `NOT_AVAILABLE` response. | Provider, jurisdictional, financial-risk, compliance, custody, consent, and security decisions. |
 

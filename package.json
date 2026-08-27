@@ -1,8 +1,8 @@
 {
   "name": "solana-social-wallet",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Security-first, non-custodial Solana account coordination foundation for verified Discord and Telegram identities.",
+  "description": "Security-first, non-custodial Solana account coordination and verifiable social-tip directory foundation for Discord and Telegram.",
   "type": "module",
   "engines": {
     "node": ">=22.0.0"

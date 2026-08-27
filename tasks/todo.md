@@ -24,3 +24,12 @@
 - [x] Specify a review-first transaction request, simulation, signing, broadcast, and confirmation protocol.
   - Acceptance: Every financial action remains user-controlled, transaction details are immutable across approval, and intent/submission/confirmation states cannot be conflated.
   - Verify: Typed interface contracts, state-machine tests, and a separate implementation approval checklist.
+- [x] Define the social tipping directory threat model and stable-identity boundary for Discord/Telegram discovery.
+  - Acceptance: Handles are display hints only; payment resolution requires a verified stable platform ID, wallet-control proof, recipient consent, and recipient-address review.
+  - Verify: Source-cited threat model and decision record.
+- [x] Specify signed identity-attestation, wallet-binding, rotation, revocation, and privacy-preserving discovery records.
+  - Acceptance: No directory operator can forge a current address binding, and plaintext handles or social graph data are not globally enumerated by default.
+  - Verify: Versioned record schema, lifecycle state machine, and adversarial cases.
+- [x] Specify multi-replica directory lookup, quorum verification, fork/equivocation handling, availability degradation, and signer-client selection policy.
+  - Acceptance: A single database outage or malicious replica cannot silently change a recipient address or authorize payment.
+  - Verify: Typed resolver contract, deterministic quorum-policy tests, and implementation gate checklist.
