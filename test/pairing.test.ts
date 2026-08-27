@@ -49,4 +49,25 @@ describe('AccountService pairing', () => {
     expect(sharedAccount?.identities).toHaveLength(2)
     expect(sharedAccount?.identities.map((identity) => identity.platform)).toEqual(['discord', 'telegram'])
   })
+
+  it('refuses a pairing code that targets the source chat platform', async () => {
+    const service = createAccountService({
+      repository: new MemorySocialRepository(),
+      clock: () => new Date('2026-08-27T12:00:00.000Z'),
+      codeGenerator: () => 'paired-test-code'
+    })
+
+    await service.createAccountFromIdentity({
+      platform: 'discord',
+      platformUserId: 'discord-user-300',
+      displayName: 'sender'
+    })
+
+    await expect(
+      service.issuePairingCode({
+        actor: { platform: 'discord', platformUserId: 'discord-user-300' },
+        targetPlatform: 'discord'
+      })
+    ).rejects.toMatchObject({ code: 'PAIRING_TARGET_PLATFORM_MUST_DIFFER' })
+  })
 })

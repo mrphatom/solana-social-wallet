@@ -99,6 +99,9 @@ export function createAccountService(dependencies: AccountServiceDependencies): 
     if (sourceIdentity === null) {
       throw new DomainError('PAIRING_SOURCE_NOT_FOUND', 'Create a shared account before linking another platform.')
     }
+    if (parsed.targetPlatform === sourceIdentity.platform) {
+      throw new DomainError('PAIRING_TARGET_PLATFORM_MUST_DIFFER', 'Choose the other supported chat platform for pairing.')
+    }
 
     const now = clock()
     const code = normalizePairingCode(codeGenerator())
