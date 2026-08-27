@@ -48,3 +48,32 @@ export interface PairingRequest {
   createdAt: Date
   confirmedAt: Date | null
 }
+
+export interface SolanaWalletAccount {
+  accountId: string
+  chain: 'solana'
+  address: string
+  verifiedAt: Date
+}
+
+export type SolanaNetwork = 'solana:devnet'
+
+export type TransferIntentState = 'AWAITING_WALLET_APPROVAL' | 'CANCELLED'
+
+export interface TransferIntentRecipient {
+  accountId: string
+  platform: Platform
+  platformUserId: string
+  solanaAddress: string
+}
+
+export interface InternalTransferIntent {
+  id: string
+  senderAccountId: string
+  recipient: TransferIntentRecipient
+  amountLamports: bigint
+  network: SolanaNetwork
+  idempotencyKey: string
+  state: TransferIntentState
+  createdAt: Date
+}
